@@ -76,19 +76,15 @@ WHERE Oc.[Srednia Ocena] > (SELECT DISTINCT "Srednia Ocena" FROM Osoba O
 	WHERE O.Imie = 'Hieronim' AND O.Nazwisko = 'Kapusta')
 
 
-SELECT DISTINCT Imie,Nazwisko,"Wyzsza ocena",Przedmiot FROM Osoba O
-JOIN (SELECT DISTINCT MAX(Ocena) OVER(PARTITION BY IdPrzedmiot) "Wyzsza ocena", IdPrzedmiot FROM Ocena) Oc
-ON O.IdOsoba = Oc.IdStudent
+SELECT Imie,Nazwisko,Przedmiot, [Max Ocena] FROM 
+(SELECT DISTINCT MAX(Ocena) "Max Ocena",IdPrzedmiot, MAX(IdStudent) "IdStudent" FROM Ocena AS T1
+GROUP BY IdPrzedmiot
+) result
+JOIN Osoba O
+ON result.IdStudent = O.IdOsoba
 JOIN Przedmiot Prz
-ON Oc.IdPrzedmiot = Prz.IdPrzedmiot
+ON Prz.IdPrzedmiot = result.IdPrzedmiot
 
-SELECT DISTINCT MAX(Ocena) OVER(PARTITION BY IdPrzedmiot) "Wyzsza ocena", IdPrzedmiot FROM Ocena O
-INNER JOIN (SELECT DISTINCT MAX(Ocena) OVER(PARTITION BY IdPrzedmiot) "Wyzsza ocena",IdStudent FROM Ocena) O2
-ON O.[Wyzsza ocena] = O2.[Wyzsza ocena]
-
-SELECT DISTINCT MAX(Ocena) OVER(PARTITION BY IdPrzedmiot) "Wyzsza ocena",IdPrzedmiot, IdStudent FROM Ocena O
-INNER JOIN (SELECT DISTINCT MAX(Ocena) OVER(PARTITION BY IdPrzedmiot) "Wyzsza ocena",DataWystawienia FROM Ocena) O2
-ON O.DataWystawienia = O2.DataWystawienia
 
 
 
@@ -98,3 +94,8 @@ SELECT * FROM PrzedmiotPoprzedzajacy
 SELECT DISTINCT IdStudent FROM Ocena
 SELECT * FROM Osoba
 SELECT * FROM Ocena
+
+SELECT DISTINCT MAX(Ocena) "Max Ocena",IdPrzedmiot, MAX(IdStudent) "IdStudent" FROM Ocena AS T1
+JOIN Osoba O
+ON O.IdOsoba = T1.IdStudent
+GROUP BY IdPrzedmiot
